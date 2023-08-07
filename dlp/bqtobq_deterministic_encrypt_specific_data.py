@@ -32,6 +32,7 @@ def deidentify_table_replace_with_info_types(
     # Construct inspect configuration dictionary
     inspect_config = {"info_types": [{"name": info_type} for info_type in info_types]}
     
+    #This condition will work as WHERE clause to filter the data on which you need to or avoid to perform DLP
     condition_expression = {"conditions":[
                                 {"field":{
                                     "name":"id"
