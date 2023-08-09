@@ -1,4 +1,4 @@
-DLP- Data Loss Prevention
+#DLP- Data Loss Prevention
 There are multiple types of de-identification techniques shown in below link
 https://cloud.google.com/dlp/docs/transformations-reference
 
