@@ -9,11 +9,11 @@ https://cloud.google.com/dlp/docs/transformations-reference
 
   This is divided in three sub-part
   
-    i. Cryptographic hashing
+    i. Cryptographic hashing https://cloud.google.com/dlp/docs/transformations-reference#crypto-hashing
     
-    ii. Format preserving encryption
+    ii. Format preserving encryption https://cloud.google.com/dlp/docs/transformations-reference#fpe
     
-    iii. Deterministic encryption
+    iii. Deterministic encryption https://cloud.google.com/dlp/docs/transformations-reference#de
     
 6. Bucketing: "Generalizes" a sensitive value by replacing it with a range of values. (For example, replacing a specific age with an age range, or temperatures with ranges corresponding to "Hot," "Medium," and "Cold.")
 7. Date shifting: Shifts sensitive date values by a random amount of time.
