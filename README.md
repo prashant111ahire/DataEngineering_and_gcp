@@ -8,11 +8,8 @@ https://cloud.google.com/dlp/docs/transformations-reference
 4. Crypto-based tokenization: Encrypts the original sensitive data value using a cryptographic key. Sensitive Data Protection supports several types of tokenization, including transformations that can be reversed, or "re-identified."
 
   This is divided in three sub-part
-  
-    i. Cryptographic hashing https://cloud.google.com/dlp/docs/transformations-reference#crypto-hashing
-    
+      i. Cryptographic hashing https://cloud.google.com/dlp/docs/transformations-reference#crypto-hashing
     ii. Format preserving encryption https://cloud.google.com/dlp/docs/transformations-reference#fpe
-    
     iii. Deterministic encryption https://cloud.google.com/dlp/docs/transformations-reference#de
     
 6. Bucketing: "Generalizes" a sensitive value by replacing it with a range of values. (For example, replacing a specific age with an age range, or temperatures with ranges corresponding to "Hot," "Medium," and "Cold.")
