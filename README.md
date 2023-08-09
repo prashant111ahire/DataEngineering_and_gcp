@@ -10,8 +10,8 @@ https://cloud.google.com/dlp/docs/transformations-reference
     Cryptographic hashing
     Format preserving encryption
     Deterministic encryption
-5. Bucketing: "Generalizes" a sensitive value by replacing it with a range of values. (For example, replacing a specific age with an age range, or temperatures with ranges corresponding to "Hot," "Medium," and "Cold.")
-6. Date shifting: Shifts sensitive date values by a random amount of time.
-7. Time extraction: Extracts or preserves specified portions of date and time values.
+6. Bucketing: "Generalizes" a sensitive value by replacing it with a range of values. (For example, replacing a specific age with an age range, or temperatures with ranges corresponding to "Hot," "Medium," and "Cold.")
+7. Date shifting: Shifts sensitive date values by a random amount of time.
+8. Time extraction: Extracts or preserves specified portions of date and time values.
 
 Python Methods and modules: https://cloud.google.com/python/docs/reference/dlp/3.0.1/google.cloud.dlp_v2.types
