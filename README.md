@@ -2,7 +2,6 @@
 
 There are multiple types of de-identification techniques shown in below link
 https://cloud.google.com/dlp/docs/transformations-reference
-
 1. Redaction: Deletes all or part of a detected sensitive value.
 2. Replacement: Replaces a detected sensitive value with a specified surrogate value.
 3. Masking: Replaces a number of characters of a sensitive value with a specified surrogate character, such as a hash (#) or asterisk (*).
