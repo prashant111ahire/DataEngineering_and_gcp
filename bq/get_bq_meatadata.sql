@@ -7,14 +7,14 @@ sz.row_count,
 (sz.size_bytes/1024/1024/1024) size_gb,
 obj.partiton_col,
 obj.cluster_col
-from udco_ds_mrch_confirmed.__TABLES__ sz
+from <DATASET_NAME>.__TABLES__ sz
 left join 
 (select 
 table_schema,
 table_name,
 max(CASE WHEN is_partitioning_column='YES' then column_name else NULL end) partiton_col,
 STRING_AGG(CASE WHEN clustering_ordinal_position is NOT NULL then column_name else null end,',') as cluster_col
-from `udco_ds_mrch_confirmed.INFORMATION_SCHEMA.COLUMNS`
+from `<DATASET_NAME>.INFORMATION_SCHEMA.COLUMNS`
 GROUP BY 1,2
 )obj
 on sz.dataset_id=obj.table_schema
@@ -43,7 +43,7 @@ FROM region-us.INFORMATION_SCHEMA.JOBS a
 left outer join unnest(referenced_tables) referenced_tables
 WHERE job_type = 'QUERY' 
 AND DATE(creation_time) >= DATE_SUB(DATE(CURRENT_TIMESTAMP()), INTERVAL 30 DAY)
-and a.project_id='gcp-abs-udco-bqvw-prod-prj-01'
+and a.project_id='<PROJECT_ID>'
 )
 SELECT
 -- project_id,
@@ -58,14 +58,14 @@ ORDER BY 3 DESC
 
 --Get clustering/partition with size/row count FOR DATASETS
 
-CREATE OR REPLACE PROCEDURE `gcp-abs-udco-bq-prod-prj-01.udco_ds_bim_mon.SP_GET_TABLE_DETAILS`()
+CREATE OR REPLACE PROCEDURE `<PROJECT_ID>.<DATASET_NAME>.SP_GET_TABLE_DETAILS`()
 BEGIN
 DECLARE sql,dataset_name,PROJECT_ID,table_name STRING;
 
 SET @@query_label="appcode:uddi,domain_name:dataops,env:prod,spname:sp_get_all_details";
 
 --TABLE_STORGE COPY FROM INFORMATION_SCHEMA
-CREATE or REPLACE TABLE udco_ds_bim_mon.TABLE_STORAGE cluster by table_schema,table_name AS
+CREATE or REPLACE TABLE <DATASET_NAME>.TABLE_STORAGE cluster by table_schema,table_name AS
 SELECT
   table_schema,
   table_name,
@@ -76,13 +76,13 @@ FROM
   region-us.INFORMATION_SCHEMA.TABLE_STORAGE;
 
 --ADD EXPIRATION FOR 1 DAY
-ALTER TABLE udco_ds_bim_mon.TABLE_STORAGE
+ALTER TABLE <DATASET_NAME>.TABLE_STORAGE
 SET OPTIONS (
   expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 DAY) -- Replace 1 with your desired expiration period in days
 );
 
 --THE FINAL TABLE
-CREATE or replace table `udco_ds_bim_mon.ALL_TABLE_DETAILS` (
+CREATE or replace table `<DATASET_NAME>.ALL_TABLE_DETAILS` (
 DATASET_NAME STRING,
 TABLE_NAME STRING,
 ROW_COUNT INT64,
@@ -104,7 +104,7 @@ OPTIONS (
 
 -- Generate SQL dynamically to get all table names in each dataset
   SET sql = (
-    SELECT CONCAT('INSERT INTO `udco_ds_bim_mon.ALL_TABLE_DETAILS` ',
+    SELECT CONCAT('INSERT INTO `<DATASET_NAME>.ALL_TABLE_DETAILS` ',
 'WITH SizeInfo AS ',
 '( ',
 'SELECT tab.table_schema, tab.table_name, ',
@@ -123,7 +123,7 @@ OPTIONS (
 'select obj.table_schema,obj.table_name,sz.total_rows as row_count,(sz.total_logical_bytes/1024/1024/1024) as SIZE_GB,partition_col,part_datatype,sz.total_partitions, cluster_col,cluster_datatype ,  ',
 'from SizeInfo obj ',
 'LEFT JOIN  ',
-'udco_ds_bim_mon.TABLE_STORAGE sz ',
+'DATASET_NAME.TABLE_STORAGE sz ',
 'ON obj.table_schema=sz.table_schema and obj.table_name=sz.table_name ',
 ') ,  ',
 'LABELS AS ( ',
@@ -163,7 +163,7 @@ select table_schema,table_name, REGEXP_EXTRACT(option_value, r'"appcode",\s*"([^
   REGEXP_EXTRACT(option_value, r'"environment",\s*"([^"]+)"') AS environment,
   REGEXP_EXTRACT(option_value, r'"domainname",\s*"([^"]+)"') AS domainname,
   REGEXP_EXTRACT(option_value, r'"bodname",\s*"([^"]+)"') AS bodname
-   from udco_ds_mrch_confirmed.INFORMATION_SCHEMA.TABLE_OPTIONS  where option_name='labels'
+   from <DATASET_NAME>.INFORMATION_SCHEMA.TABLE_OPTIONS  where option_name='labels'
    
 ==========================================================================================================================
 --How to get labels with stored PROCEDURE--
@@ -171,7 +171,7 @@ select
 routine_schema,n
 routine_name, 
 SPLIT(REGEXP_EXTRACT(ddl, r'@@query_label="([^"]*)"'), ',') AS key_value_pairs,
-from udco_ds_mrch_confirmed.INFORMATION_SCHEMA.ROUTINES 
+from <DATASET_NAME>.INFORMATION_SCHEMA.ROUTINES 
 
 SELECT
   routine_schema,
@@ -190,7 +190,7 @@ SELECT
   ) AS appcode_validation,
   SPLIT(REGEXP_EXTRACT(ddl, r'@@query_label="([^"]*)"'), ',') AS key_value_pairs
 FROM
-  udco_ds_mrch_confirmed.INFORMATION_SCHEMA.ROUTINES;
+  <DATASET_NAME>.INFORMATION_SCHEMA.ROUTINES;
 
 
 ==========================================================================================================================
@@ -257,33 +257,3 @@ order by row_count desc
 --Get DDL of the tables--
 select table_name,ddl from ent_cust_cust.INFORMATION_SCHEMA.TABLES
 
-==========================================================================================================================
---PROVIDE ACCESS SA to datasets
-DECLARE datasets ARRAY<STRING>;
-DECLARE sql_command STRING;
-
--- Step 1: Fetch all dataset names from the project
-SET datasets = ARRAY(
-  SELECT schema_name
-  FROM `region-us-west1.INFORMATION_SCHEMA.SCHEMATA`
-  WHERE schema_name NOT IN ('INFORMATION_SCHEMA')  -- Exclude system datasets if needed
-);
-
--- Step 2: Loop through each dataset and generate the GRANT statement
-FOR dataset_name_i IN (
-  SELECT schema_name FROM UNNEST(datasets) AS schema_name
-) DO
-  -- Step 3: Construct the GRANT statement dynamically
-  SET sql_command = FORMAT("""
-    GRANT `roles/bigquery.dataEditor`
-    ON SCHEMA `jwn-nap-user1-nonprod-zmnb.%s`
-    TO "serviceAccount:airflow-gcp-onix-testing@jwn-nap-user1-nonprod-zmnb.iam.gserviceaccount.com"
-  """, dataset_name_i.schema_name);  -- Extract the schema_name from the STRUCT
-
-  -- Step 4: (Optional) Output the constructed SQL command for debugging purposes
-  SELECT sql_command;
-
-  -- Step 5: Execute the GRANT statement
-  EXECUTE IMMEDIATE sql_command;
-
-END FOR;
