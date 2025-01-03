@@ -26,7 +26,14 @@ order by size_bytes desc
 
 --get source table from view
  select table_schema,table_name,ddl,
- replace(replace(REGEXP_EXTRACT(ddl, r'(?i)(?:from)\s+(.*;)'),"`",""),';','')
+ REGEXP_REPLACE(
+    REGEXP_EXTRACT(
+      ddl, 
+      r'(?i)(?:from|join)\s+([\w.`]+)'  -- Match 'FROM' or 'JOIN' followed by the source
+    ), 
+    r'[`;]',                              -- Remove backticks and semicolons
+    ''
+  )
 from region-us.INFORMATION_SCHEMA.TABLES where table_name='D1_UPC';
 
 =======================================================================================================================================================
