@@ -24,7 +24,8 @@ df = pd.read_csv(variable_value_csv)
 gcp_conn_id = "dataops_conn_id"
 logging.info("gcp_conn_id: " + gcp_conn_id)
 
-v_project_id = "gcp-abs-udco-bq-" + env + "-prj-01"
+#v_project_id = "<PROJECT_ID>" + env + "-prj-01"
+v_project_id = "<PROJECT_ID>" + env
 
 bqhook = BigQueryHook(gcp_conn_id=gcp_conn_id, use_legacy_sql=False)
 bq_client = bqhook.get_client(project_id=v_project_id)
@@ -115,7 +116,7 @@ def execute_query():
                 
         send_email_task = EmailOperator(
             task_id="send_email",
-            to="pahir00@safeway.com,prashant.ahire@albertsons.com,varun.rauthan@albertsons.com,kushal.agrawal@albertsons.com,murali.meesala@albertsons.com,sujay.shandilaya@albertsons.com,niyanta.lad@albertsons.com",
+            to="prashant111ahire@gmail.com",
             subject=f"BQ Queries executed in the past 2 hours",
             html_content=html_content,
         )
