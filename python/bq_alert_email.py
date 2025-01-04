@@ -1,3 +1,5 @@
+#This DAG will trigger an email alert if the query is scanning more than provide limit of size
+
 import os
 from datetime import datetime, timedelta
 from airflow.operators import python_operator
