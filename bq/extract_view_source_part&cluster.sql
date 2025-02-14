@@ -103,7 +103,7 @@ WITH base_sources AS (
       ''
     ) AS source,
     table_type as object_type
-  FROM `region-us-west1`.INFORMATION_SCHEMA.TABLES  -- Added backticks for consistency
+  FROM `region-us-west1`.INFORMATION_SCHEMA.TABLES
   WHERE UPPER(CONCAT(table_schema, '.', table_name)) IN (
  'PRD_NAP_BASE_VWS.PRODUCT_SKU_DIM_HIST','PRD_NAP_BASE_VWS.PRODUCT_STYLE_DIM_HIST','PRD_NAP_BASE_VWS.DEPARTMENT_DIM_HIST','PRD_NAP_BASE_VWS.DEPARTMENT_CLASS_SUBCLASS_DIM_HIST','PRD_NAP_BASE_VWS.VENDOR_PAYTO_RELATIONSHIP_DIM','PRD_NAP_BASE_VWS.VENDOR_LABEL_DIM','PRD_NAP_BASE_VWS.VENDOR_DIM','PRD_NAP_BASE_VWS.VENDOR_DIM','PRD_NAP_BASE_VWS.VENDOR_PAYTO_RELATIONSHIP_DIM'
   )
@@ -119,7 +119,7 @@ source_classification AS (
       ELSE 'Table'
     END AS source_type
   FROM base_sources bs
-  LEFT JOIN `region-us-west1`.INFORMATION_SCHEMA.VIEWS v  -- Added backticks
+  LEFT JOIN `region-us-west1`.INFORMATION_SCHEMA.VIEWS v
     ON UPPER(bs.source) = UPPER(CONCAT(v.table_schema, '.', v.table_name))
 ),
 table_partitioning AS (
@@ -128,7 +128,7 @@ table_partitioning AS (
     table_name,
     STRING_AGG(CASE WHEN is_partitioning_column = 'YES' THEN column_name END) AS source_partition_columns,
     STRING_AGG(CASE WHEN clustering_ordinal_position IS NOT NULL THEN column_name END) AS source_cluster_columns
-  FROM `region-us-west1`.INFORMATION_SCHEMA.COLUMNS  -- Added backticks
+  FROM `region-us-west1`.INFORMATION_SCHEMA.COLUMNS
   WHERE UPPER(CONCAT(table_schema, '.', table_name)) IN (
     SELECT DISTINCT source 
     FROM source_classification 
@@ -142,7 +142,7 @@ object_partitioning AS (
     table_name,
     STRING_AGG(CASE WHEN is_partitioning_column = 'YES' THEN column_name END) AS object_partition_columns,
     STRING_AGG(CASE WHEN clustering_ordinal_position IS NOT NULL THEN column_name END) AS object_cluster_columns
-  FROM `region-us-west1`.INFORMATION_SCHEMA.COLUMNS -- Added backticks
+  FROM `region-us-west1`.INFORMATION_SCHEMA.COLUMNS
   WHERE UPPER(CONCAT(table_schema, '.', table_name)) IN (
     SELECT DISTINCT CONCAT(UPPER(table_schema), '.', UPPER(table_name)) 
     FROM source_classification 
@@ -154,7 +154,7 @@ table_size AS (  -- New CTE to get table sizes
     table_schema,
     table_name,
     TOTAL_LOGICAL_BYTES as size_bytes
-  FROM `region-us-west1`.INFORMATION_SCHEMA.TABLE_STORAGE  -- Use TABLE_STORAGE for size
+  FROM `region-us-west1`.INFORMATION_SCHEMA.TABLE_STORAGE
   WHERE UPPER(CONCAT(table_schema, '.', table_name)) IN (
     SELECT DISTINCT source
     FROM source_classification
@@ -170,7 +170,7 @@ SELECT
   sc.source_type,
   tp.source_partition_columns,
   COALESCE(tp.source_cluster_columns, 'No clustering columns') AS source_cluster_columns,
-  ts.size_bytes/1024/1024/1024 AS source_table_size_gb  -- Added the size information
+  ts.size_bytes/1024/1024/1024 AS source_table_size_gb 
 FROM source_classification sc
 LEFT JOIN table_partitioning tp
   ON UPPER(sc.source) = UPPER(CONCAT(tp.table_schema, '.', tp.table_name))
