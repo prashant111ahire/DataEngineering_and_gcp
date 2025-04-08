@@ -11,6 +11,7 @@ WITH
     user_email AS user,
     query,
     job_id AS jobId,
+    parent_job_id as parentjobId,
     project_id AS projectId,
     TIMESTAMP_DIFF(end_time, start_time, SECOND) AS runningTimeInSeconds,
     SAFE_DIVIDE(TIMESTAMP_DIFF(end_time, start_time, MILLISECOND), total_bytes_billed) AS runtimeToBytesBilledRatio, -- FOR ON-DEMAND
