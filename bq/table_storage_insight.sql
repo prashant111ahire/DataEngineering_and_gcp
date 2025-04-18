@@ -30,7 +30,7 @@ SELECT
   m.partition_column,
   m.clustering_columns,
   m.clustering_columns_count,
-  s.total_logical_bytes AS size_bytes,
+  --s.total_logical_bytes AS size_bytes,
   ROUND(s.total_logical_bytes / POW(1024, 3), 2) AS size_gb,
   s.total_rows,
   s.total_partitions
