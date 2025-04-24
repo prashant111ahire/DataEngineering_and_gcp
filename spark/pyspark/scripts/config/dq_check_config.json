@@ -1,0 +1,28 @@
+{
+  "dataset": {
+    "input_path": "gs://<BUCKET_NAME>/sales.csv",
+    "format": "csv",
+    "header": true
+  },
+  "checks": [
+    {
+      "type": "null_check",
+      "columns": ["customer_id", "order_id"],
+      "threshold": 0.1
+    },
+    {
+      "type": "duplicate_check",
+      "columns": ["order_id"]
+    },
+    {
+      "type": "value_range",
+      "column": "amount",
+      "min": 0,
+      "max": 100000
+    },
+    {
+      "type": "distinct_count",
+      "column": "country"
+    }
+  ]
+}
